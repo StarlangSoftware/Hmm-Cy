@@ -1,11 +1,7 @@
-from Hmm.Hmm cimport Hmm
-from Math.Vector cimport Vector
 from Math.Matrix cimport Matrix
 
 
 cdef class Hmm1(Hmm):
-
-    cdef Vector __pi
 
     def __init__(self, states: set, observations: list, emittedSymbols: list):
         """

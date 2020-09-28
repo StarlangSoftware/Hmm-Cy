@@ -4,6 +4,7 @@ Hmm/Hmm.c
 Hmm/Hmm.pxd
 Hmm/Hmm.pyx
 Hmm/Hmm1.c
+Hmm/Hmm1.pxd
 Hmm/Hmm1.pyx
 Hmm/Hmm2.c
 Hmm/Hmm2.pyx

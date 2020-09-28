@@ -5,7 +5,7 @@ setup(
     ext_modules=cythonize(["Hmm/*.pyx"],
                           compiler_directives={'language_level': "3"}),
     name='NlpToolkit-Hmm-Cy',
-    version='1.0.0',
+    version='1.0.1',
     packages=['Hmm'],
     package_data={'Hmm': ['*.pxd', '*.pyx', '*.c']},
     url='https://github.com/olcaytaner/Hmm-Cy',
