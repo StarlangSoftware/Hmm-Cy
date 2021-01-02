@@ -8,7 +8,7 @@ setup(
     version='1.0.1',
     packages=['Hmm'],
     package_data={'Hmm': ['*.pxd', '*.pyx', '*.c']},
-    url='https://github.com/olcaytaner/Hmm-Cy',
+    url='https://github.com/StarlangSoftware/Hmm-Cy',
     license='',
     author='olcaytaner',
     author_email='olcay.yildiz@ozyegin.edu.tr',
