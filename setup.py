@@ -11,7 +11,7 @@ setup(
     url='https://github.com/olcaytaner/Hmm-Cy',
     license='',
     author='olcaytaner',
-    author_email='olcaytaner@isikun.edu.tr',
+    author_email='olcay.yildiz@ozyegin.edu.tr',
     description='Hidden Markov Model Library',
     install_requires=['NlpToolkit-Math-Cy', 'NlpToolkit-DataStructure-Cy']
 )
