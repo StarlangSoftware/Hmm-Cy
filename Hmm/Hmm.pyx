@@ -1,5 +1,5 @@
-from Hmm.HmmState cimport HmmState
 from DataStructure.CounterHashMap cimport CounterHashMap
+from Hmm.HmmState cimport HmmState
 import math
 
 
@@ -14,7 +14,10 @@ cdef class Hmm(object):
     def viterbi(self, s: list) -> list:
         pass
 
-    def __init__(self, states: set, observations: list, emittedSymbols: list):
+    def __init__(self,
+                 states: set,
+                 observations: list,
+                 emittedSymbols: list):
         """
         A constructor of Hmm class which takes a Set of states, an array of observations (which also
         consists of an array of states) and an array of instances (which also consists of an array of emitted symbols).
@@ -31,18 +34,18 @@ cdef class Hmm(object):
             An array of instances, where each instance consists of an array of symbols.
         """
         cdef int i
-        cdef dict emissionProbabilities
+        cdef dict emission_probabilities
         i = 0
-        self.stateCount = len(states)
+        self.state_count = len(states)
         self.states = []
-        self.stateIndexes = {}
+        self.state_indexes = {}
         for state in states:
-            self.stateIndexes[state] = i
+            self.state_indexes[state] = i
             i = i + 1
         self.calculatePi(observations)
         for state in states:
-            emissionProbabilities = self.calculateEmissionProbabilities(state, observations, emittedSymbols)
-            self.states.append(HmmState(state, emissionProbabilities))
+            emission_probabilities = self.calculateEmissionProbabilities(state, observations, emittedSymbols)
+            self.states.append(HmmState(state, emission_probabilities))
         self.calculateTransitionProbabilities(observations)
 
     cpdef dict calculateEmissionProbabilities(self, object state, list observations, list emittedSymbols):
@@ -66,20 +69,20 @@ cdef class Hmm(object):
             A HashMap. Emission probabilities for a single state. Contains a probability for each symbol emitted.
         """
         cdef CounterHashMap counts
-        cdef dict emissionProbabilities
+        cdef dict emission_probabilities
         cdef int i, j
         counts = CounterHashMap()
-        emissionProbabilities = {}
+        emission_probabilities = {}
         for i in range(len(observations)):
             for j in range(len(observations[i])):
-                currentState = observations[i][j]
-                currentSymbol = emittedSymbols[i][j]
-                if currentState == state:
-                    counts.put(currentSymbol)
+                current_state = observations[i][j]
+                current_symbol = emittedSymbols[i][j]
+                if current_state == state:
+                    counts.put(current_symbol)
         total = counts.sumOfCounts()
         for symbol in counts:
-            emissionProbabilities[symbol] = counts[symbol] / total
-        return emissionProbabilities
+            emission_probabilities[symbol] = counts[symbol] / total
+        return emission_probabilities
 
     cpdef double safeLog(self, double x):
         """
@@ -100,3 +103,6 @@ cdef class Hmm(object):
             return -1000
         else:
             return math.log(x)
+
+    def __repr__(self):
+        return f"{self.transition_probabilities} {self.states}"

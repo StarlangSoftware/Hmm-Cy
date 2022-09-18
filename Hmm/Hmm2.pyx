@@ -7,7 +7,10 @@ cdef class Hmm2(Hmm):
 
     cdef Matrix __pi
 
-    def __init__(self, states: set, observations: list, emittedSymbols: list):
+    def __init__(self,
+                 states: set,
+                 observations: list,
+                 emittedSymbols: list):
         """
         A constructor of Hmm2 class which takes a Set of states, an array of observations (which also
         consists of an array of states) and an array of instances (which also consists of an array of emitted symbols).
@@ -22,7 +25,9 @@ cdef class Hmm2(Hmm):
         emittedSymbols : list
             An array of instances, where each instance consists of an array of symbols.
         """
-        super().__init__(states, observations, emittedSymbols)
+        super().__init__(states,
+                         observations,
+                         emittedSymbols)
 
     cpdef calculatePi(self, list observations):
         """
@@ -38,10 +43,10 @@ cdef class Hmm2(Hmm):
         """
         cdef int first, second
         cdef list observation
-        self.__pi = Matrix(self.stateCount, self.stateCount)
+        self.__pi = Matrix(self.state_count, self.state_count)
         for observation in observations:
-            first = self.stateIndexes[observation[0]]
-            second = self.stateIndexes[observation[1]]
+            first = self.state_indexes[observation[0]]
+            second = self.state_indexes[observation[1]]
             self.__pi.increment(first, second)
         self.__pi.columnWiseNormalize()
 
@@ -57,15 +62,15 @@ cdef class Hmm2(Hmm):
             A set of observations used to calculate the transition probabilities.
         """
         cdef list current
-        cdef int j, fromIndex1, fromIndex2, toIndex
-        self.transitionProbabilities = Matrix(self.stateCount * self.stateCount, self.stateCount)
+        cdef int j, from_index1, from_index2, to_index
+        self.transition_probabilities = Matrix(self.state_count * self.state_count, self.state_count)
         for current in observations:
             for j in range(len(current) - 2):
-                fromIndex1 = self.stateIndexes[current[j]]
-                fromIndex2 = self.stateIndexes[current[j + 1]]
-                toIndex = self.stateIndexes[current[j + 2]]
-                self.transitionProbabilities.increment(fromIndex1 * self.stateCount + fromIndex2, toIndex)
-        self.transitionProbabilities.columnWiseNormalize()
+                from_index1 = self.state_indexes[current[j]]
+                from_index2 = self.state_indexes[current[j + 1]]
+                to_index = self.state_indexes[current[j + 2]]
+                self.transition_probabilities.increment(from_index1 * self.state_count + from_index2, to_index)
+        self.transition_probabilities.columnWiseNormalize()
 
     cpdef Vector __logOfColumn(self, int column):
         """
@@ -84,10 +89,10 @@ cdef class Hmm2(Hmm):
         cdef Vector result
         cdef int i
         result = Vector()
-        for i in range(self.stateCount):
-            result.add(self.safeLog(self.transitionProbabilities.getValue(i * self.stateCount + column
-                                                                          // self.stateCount, column %
-                                                                          self.stateCount)))
+        for i in range(self.state_count):
+            result.add(self.safeLog(self.transition_probabilities.getValue(i * self.state_count + column
+                                                                          // self.state_count, column %
+                                                                          self.state_count)))
         return result
 
     cpdef list viterbi(self, list s):
@@ -105,36 +110,39 @@ cdef class Hmm2(Hmm):
             The most probable state sequence as an {@link ArrayList}.
         """
         cdef list result
-        cdef int sequenceLength, i, j, t, maxIndex
+        cdef int sequence_length, i, j, t, max_index
         cdef Matrix gamma, phi
         cdef Vector qs, current, previous
-        cdef double observationLikelihood
+        cdef double observation_likelihood
         result = []
-        sequenceLength = len(s)
-        gamma = Matrix(sequenceLength, self.stateCount * self.stateCount)
-        phi = Matrix(sequenceLength, self.stateCount * self.stateCount)
-        qs = Vector(sequenceLength, 0)
+        sequence_length = len(s)
+        gamma = Matrix(sequence_length, self.state_count * self.state_count)
+        phi = Matrix(sequence_length, self.state_count * self.state_count)
+        qs = Vector(sequence_length, 0)
         emission1 = s[0]
         emission2 = s[1]
-        for i in range(self.stateCount):
-            for j in range(self.stateCount):
-                observationLikelihood = self.states[i].getEmitProb(emission1) * self.states[j].getEmitProb(emission2)
-                gamma.setValue(1, i * self.stateCount + j, self.safeLog(self.__pi.getValue(i, j)) +
-                               self.safeLog(observationLikelihood))
-        for t in range(2, sequenceLength):
+        for i in range(self.state_count):
+            for j in range(self.state_count):
+                observation_likelihood = self.states[i].getEmitProb(emission1) * self.states[j].getEmitProb(emission2)
+                gamma.setValue(1, i * self.state_count + j, self.safeLog(self.__pi.getValue(i, j)) +
+                               self.safeLog(observation_likelihood))
+        for t in range(2, sequence_length):
             emission = s[t]
-            for j in range(self.stateCount * self.stateCount):
+            for j in range(self.state_count * self.state_count):
                 current = self.__logOfColumn(j)
-                previous = gamma.getRowVector(t - 1).skipVector(self.stateCount, j // self.stateCount)
+                previous = gamma.getRowVector(t - 1).skipVector(self.state_count, j // self.state_count)
                 current.addVector(previous)
-                maxIndex = current.maxIndex()
-                observationLikelihood = self.states[j % self.stateCount].getEmitProb(emission)
-                gamma.setValue(t, j, current.getValue(maxIndex) + self.safeLog(observationLikelihood))
-                phi.setValue(t, j, maxIndex * self.stateCount + j // self.stateCount)
-        qs.setValue(sequenceLength - 1, gamma.getRowVector(sequenceLength - 1).maxIndex())
-        result.insert(0, self.states[int(qs.getValue(sequenceLength - 1)) % self.stateCount].getState())
-        for i in range(sequenceLength - 2, 0, -1):
+                max_index = current.maxIndex()
+                observation_likelihood = self.states[j % self.state_count].getEmitProb(emission)
+                gamma.setValue(t, j, current.getValue(max_index) + self.safeLog(observation_likelihood))
+                phi.setValue(t, j, max_index * self.state_count + j // self.state_count)
+        qs.setValue(sequence_length - 1, gamma.getRowVector(sequence_length - 1).maxIndex())
+        result.insert(0, self.states[int(qs.getValue(sequence_length - 1)) % self.state_count].getState())
+        for i in range(sequence_length - 2, 0, -1):
             qs.setValue(i, phi.getValue(i + 1, int(qs.getValue(i + 1))))
-            result.insert(0, self.states[int(qs.getValue(i)) % self.stateCount].getState())
-        result.insert(0, self.states[int(qs.getValue(1)) // self.stateCount].getState())
+            result.insert(0, self.states[int(qs.getValue(i)) % self.state_count].getState())
+        result.insert(0, self.states[int(qs.getValue(1)) // self.state_count].getState())
         return result
+
+    def __repr__(self):
+        return f"{self.__pi} {self.transition_probabilities} {self.states}"

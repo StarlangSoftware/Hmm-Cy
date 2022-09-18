@@ -1,6 +1,6 @@
 cdef class HmmState(object):
 
-    cdef dict emissionProbabilities
+    cdef dict emission_probabilities
     cdef object state
 
     cpdef object getState(self)
