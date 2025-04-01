@@ -8,8 +8,8 @@ from Cython.Build import cythonize
 setup(
     ext_modules=cythonize(["Hmm/*.pyx"],
                           compiler_directives={'language_level': "3"}),
-    name='NlpToolkit-Hmm-Cy',
-    version='1.0.4',
+    name='nlptoolkit-hmm-cy',
+    version='1.0.5',
     packages=['Hmm'],
     package_data={'Hmm': ['*.pxd', '*.pyx', '*.c']},
     url='https://github.com/StarlangSoftware/Hmm-Cy',
